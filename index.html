@@ -1,82 +1,229 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>دعوة حضور - عرض المسرح</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
-<title>دعوة الحفل</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+        body {
+            min-height: 100vh;
+            /* خلفية المسرح المظلمة مع إضاءة خفيفة في المنتصف */
+            background: radial-gradient(circle at center, #1a162b 0%, #08060f 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow: hidden;
+            position: relative;
+        }
 
-<style>
-body{
-    margin:0;
-    font-family:Tahoma;
-    background:linear-gradient(135deg,#0f172a,#1e293b);
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    height:100vh;
-}
+        /* إضافة تأثير الستائر الجانبية للمسرح */
+        body::before, body::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            width: 15%;
+            height: 100%;
+            background: linear-gradient(to bottom, #2d0b0b, #140303);
+            opacity: 0.8;
+            z-index: 1;
+            box-shadow: 0 0 30px rgba(0,0,0,0.8);
+        }
+        body::before { left: 0; border-right: 2px solid #5c1616; }
+        body::after { right: 0; border-left: 2px solid #5c1616; }
 
-.card{
-    background:#fff;
-    padding:25px;
-    border-radius:20px;
-    text-align:center;
-    width:90%;
-    max-width:420px;
-    box-shadow:0 10px 30px rgba(0,0,0,0.3);
-}
+        /* حاوية التذكرة بتأثير الإضاءة المسرحية (Spotlight) */
+        .ticket-container {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            max-width: 550px;
+            /* إضاءة علوية مسلطة على التذكرة */
+            background: radial-gradient(ellipse at top, rgba(245, 158, 11, 0.15) 0%, transparent 80%);
+            padding: 40px 20px;
+            border-radius: 30px;
+        }
 
-h1{
-    margin:10px 0;
-}
+        /* كارت التذكرة السينمائي الفخم */
+        .ticket {
+            background: linear-gradient(135deg, #111319 0%, #1a1d26 100%);
+            border: 2px solid #d4af37; /* إطار ذهبي */
+            border-radius: 18px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.7), 0 0 30px rgba(212, 175, 55, 0.15);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
 
-.name{
-    font-size:22px;
-    font-weight:bold;
-    margin:10px 0;
-}
+        /* القطع الدائري الجانبي لمحاكاة شكل التذاكر الحقيقية */
+        .ticket::before, .ticket::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 24px;
+            height: 24px;
+            background: #1a162b; /* نفس لون خلفية الصفحة ليظهر كقطع */
+            border-radius: 50%;
+            z-index: 3;
+        }
+        .ticket::before { left: -13px; border-right: 2px solid #d4af37; }
+        .ticket::after { right: -13px; border-left: 2px solid #d4af37; }
 
-.ticket{
-    color:#2563eb;
-    font-weight:bold;
-    margin-bottom:15px;
-}
+        /* العنوان الرئيسي العلوي */
+        .main-title {
+            color: #d4af37; /* لون ذهبي */
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
 
-#qrcode{
-    margin-top:15px;
-}
-</style>
+        .subtitle {
+            color: #8a94a6;
+            font-size: 13px;
+            letter-spacing: 3px;
+            margin-bottom: 25px;
+            text-transform: uppercase;
+        }
+
+        /* منطقة بيانات الضيف المحورية */
+        .guest-box {
+            margin-bottom: 20px;
+            width: 100%;
+        }
+
+        /* مكان الاسم (يتم تحديثه برابط الويب تلقائياً) */
+        .guest-name {
+            color: #ffffff;
+            font-size: 26px;
+            font-weight: 800;
+            margin-bottom: 5px;
+            text-shadow: 0 0 10px rgba(255,255,255,0.2);
+        }
+
+        /* مكان رقم التذكرة أو الدعوة (يتم تحديثه برابط الويب تلقائياً) */
+        .ticket-id {
+            color: #d4af37;
+            font-size: 16px;
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        /* الفاصل المنقط للتذكرة */
+        .dashed-line {
+            width: 100%;
+            border-top: 2px dashed rgba(212, 175, 55, 0.3);
+            margin: 20px 0;
+        }
+
+        /* حاوية تفاصيل الحفلة والوقت */
+        .event-details {
+            color: #cdd4e0;
+            font-size: 15px;
+            line-height: 1.8;
+            text-align: right;
+            width: 100%;
+            padding: 0 15px;
+            margin-bottom: 25px;
+        }
+
+        .event-details b {
+            color: #d4af37;
+        }
+
+        /* مربع الـ QR Code الأبيض ليظهر بوضوح للقارئ عند البوابة */
+        .qr-box {
+            background: #ffffff;
+            padding: 12px;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.5);
+            display: inline-block;
+            transition: transform 0.3s ease;
+        }
+
+        .qr-box:hover {
+            transform: scale(1.03);
+        }
+
+        .note {
+            color: #525c6c;
+            font-size: 11px;
+            margin-top: 15px;
+        }
+    </style>
 </head>
-
 <body>
 
-<div class="card">
-    <h1>🎭 دعوة حضور</h1>
+    <div class="ticket-container">
+        <div class="ticket">
+            
+            <div class="main-title">دعوة حضور 🎭</div>
+            <div class="subtitle">PREMIUM TICKET</div>
 
-    <div class="name" id="name">ضيفنا الكريم</div>
-    <div class="ticket" id="ticket">---</div>
+            <div class="guest-box">
+                <div class="guest-name" id="guestName">ضيفنا الكريم</div>
+                
+                <div class="ticket-id" id="ticketId">REBOOT-000</div>
+            </div>
 
-    <div id="qrcode"></div>
-</div>
+            <div class="dashed-line"></div>
 
-<script>
-const params = new URLSearchParams(window.location.search);
+            <div class="event-details">
+                📍 <b>المكان:</b> المسرح الملكي، 6 أكتوبر<br>
+                📅 <b>التاريخ:</b> الجمعة، 21 يونيو 2026<br>
+                🕖 <b>الوقت:</b> يبدأ العرض الساعة 7:00 مساءً
+            </div>
 
-const name = params.get("name") || "ضيفنا الكريم";
-const id = params.get("id") || "RB-000";
+            <div class="qr-box">
+                <div id="qrcode"></div>
+            </div>
 
-document.getElementById("name").innerText = name;
-document.getElementById("ticket").innerText = id;
+            <div class="note">* يرجى إبراز رمز الـ QR عند بوابات الدخول للمسرح لتأكيد حضورك.</div>
 
-new QRCode(document.getElementById("qrcode"), {
-    text: id,
-    width: 180,
-    height: 180
-});
-</script>
+        </div>
+    </div>
 
+    <script>
+        // 1. قراءة البيانات المكتوبة بعد علامة الاستفهام في الرابط
+        const urlParams = new URLSearchParams(window.location.search);
+        
+        // 2. سحب قيمة الاسم (name).. وإذا مش موجودة يكتب "ضيفنا الكريم" تلقائياً
+        const nameValue = urlParams.get("name") || "ضيفنا الكريم";
+        
+        // 3. سحب قيمة رقم الدعوة (id).. وإذا مش موجودة يكتب رقم افتراضي
+        const idValue = urlParams.get("id") || "RB-000";
+
+        // 4. وضع الاسم ورقم الدعوة داخل أماكنهم المخصصة في الـ HTML فوق
+        document.getElementById("guestName").innerText = nameValue;
+        document.getElementById("ticketId").innerText = "رقم الدعوة: " + idValue;
+
+        // 5. توليد الـ QR Code بناءً على رقم الدعوة (id) عشان لما يتمسح يظهر الرقم على جهاز البوابة
+        new QRCode(document.getElementById("qrcode"), {
+            text: idValue,       // النص المخزن جوه الـ QR هو رقم التذكرة الفريد
+            width: 150,          // العرض
+            height: 150,         // الطول
+            colorDark : "#08060f", // لون مربعات الـ QR
+            colorLight : "#ffffff",// خلفية الـ QR
+            correctLevel : QRCode.CorrectLevel.H // أعلى درجة أمان ودقة للقراءة
+        });
+    </script>
 </body>
 </html>

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>دعوة الحفل</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+<style>
+body{
+    margin:0;
+    font-family:Tahoma;
+    background:linear-gradient(135deg,#0f172a,#1e293b);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+}
+
+.card{
+    background:#fff;
+    padding:25px;
+    border-radius:20px;
+    text-align:center;
+    width:90%;
+    max-width:420px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.3);
+}
+
+h1{
+    margin:10px 0;
+}
+
+.name{
+    font-size:22px;
+    font-weight:bold;
+    margin:10px 0;
+}
+
+.ticket{
+    color:#2563eb;
+    font-weight:bold;
+    margin-bottom:15px;
+}
+
+#qrcode{
+    margin-top:15px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+    <h1>🎭 دعوة حضور</h1>
+
+    <div class="name" id="name">ضيفنا الكريم</div>
+    <div class="ticket" id="ticket">---</div>
+
+    <div id="qrcode"></div>
+</div>
+
+<script>
+const params = new URLSearchParams(window.location.search);
+
+const name = params.get("name") || "ضيفنا الكريم";
+const id = params.get("id") || "RB-000";
+
+document.getElementById("name").innerText = name;
+document.getElementById("ticket").innerText = id;
+
+new QRCode(document.getElementById("qrcode"), {
+    text: id,
+    width: 180,
+    height: 180
+});
+</script>
+
+</body>
+</html>
